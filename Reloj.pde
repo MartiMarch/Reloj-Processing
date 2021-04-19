@@ -1,45 +1,120 @@
-//https://processing.org/examples/clock.html 
-float sR;
+float sR, mR, hR;
+float angSeg, angMinute, angHour;
+float r, horas = 3;
+ArrayList<Punto> pntsS = new ArrayList();
+ArrayList<Punto> pntsM = new ArrayList();
 
 void setup() {
-  size(500, 500);
-  int r = min(width, height) / 2;
-  float sR = r * 0.72;
+  size(450, 450);
+  r = min(width+(0.15*width), height+(0.15*height)) / 2;
+  sR = r * 0.72;
+  mR = r * 0.6;
+  hR = r * 0.5;
 }
 
 void draw() {
   background(0);
-  /*translate(200, 200);
-  rotate(-HALF_PI);
-  */
   int h = height;
   int w = width;
   int hr = hour();
   int mn = minute();
   int sc = second();
   int grosor = 12;
-  float angSeg = map(second(), 0, 60, 0, TWO_PI) - HALF_PI;
   
+  angSeg = map(second(), 0, 60, 0, TWO_PI) - HALF_PI;
+  angMinute = map(minute() + norm(second(), 0, 60), 0, 60, 0, TWO_PI) - HALF_PI;
+  angHour = map(hour() + norm(minute(), 0, 60), 0, 24, 0, TWO_PI * 2) - HALF_PI;
   
   fill(255);
   noStroke();
-  textSize(12);
-  text(hr + ":" + mn + ":" + sc, 0, 12);
-
-  textSize(32);
-  text("12", (w/2)-32, 32);
-  text("6", (w/2)-20, h-6);
-  text("9", 6, h/2);
-  text("3", w-28, h/2);
-
-  strokeWeight(grosor);
-  rect(w/2-16, 32+5, grosor, grosor);
-  rect(w/2-16, h-46, grosor, grosor);
-  rect(32, h/2-17, grosor, grosor);
-  rect(w-42, h/2-17, grosor, grosor);
+  textSize(r*0.05);
+  text(hr + ":" + mn + ":" + sc, 0, r*0.05);
   
-  pushMatrix();
+  strokeWeight(grosor-10);
+  stroke(255, 0, 0);
+  line(w/2, h/2, (w/2 + cos(angSeg) * (sR-(r*0.15))), (h/2 + sin(angSeg) * (sR-(r*0.15))));
+  
+  if(sc==0)
+  {
+    fill(0, 0, 0);
+    strokeWeight(r/50);
+    pntsS = new ArrayList();
+    beginShape(POINTS);
+    for(int i = 0; i < pntsS.size(); ++i)
+    {
+      vertex(pntsS.get(i).getX(), pntsS.get(i).getY());
+    }
+    endShape();
+  }
+  else
+  {
+    fill(0, 0, 255);
+    strokeWeight(r/50);
+    Punto p = new Punto(w/2 + cos(angSeg) * (sR-(r*0.15)), h/2 + sin(angSeg) * (sR-(r*0.15)));
+    pntsS.add(p);
+    beginShape(POINTS);
+    for(int i = 0; i < pntsS.size(); ++i)
+    {
+      vertex(pntsS.get(i).getX(), pntsS.get(i).getY());
+    }
+    endShape();
+  }
+  
+  strokeWeight(grosor-5);
+  stroke(0, 128, 255);
+  line(w/2, h/2, (w/2 + cos(angMinute) * (mR-(r*0.15))), (h/2 + sin(angMinute) * (mR-(r*0.15))));
+ 
+  strokeWeight(grosor);
   stroke(255, 255, 255);
-  line(w/2, h/2, w/2 + cos(angSeg) * sR, h/2 + sin(angSeg) * sR);
-  popMatrix();
+  line(w/2, h/2, (w/2 + cos(angHour) * (hR-(r*0.25))), (h/2 + sin(angHour) * (hR - (r*0.25))));
+
+  fill(127,255,0);
+  stroke(127,255,0);
+  strokeWeight(2);
+  beginShape(POINTS);
+  for (int a = 0; a < 360; a+=6) {
+    float angle = radians(a);
+    float x = w/2 + cos(angle) * sR;
+    float y = h/2 + sin(angle) * sR;
+    if(a%15==0)
+    {
+      String horasText = Float.toString(horas);
+      horasText = horasText.replaceFirst("\\.([0-9])+", "");
+      text(horasText, x, y);
+      if(horas == 12)
+      {
+        horas = 1;
+      }
+      else
+      {
+        ++horas;
+      }
+    }
+    else
+    {
+       vertex(x, y);
+    }
+  }
+  endShape();
+}
+
+class Punto
+{
+  private float x, y;
+  
+  public Punto(float x, float y)
+  {
+    this.x = x;
+    this.y = y;
+  }
+  
+ public float getX()
+ {
+   return x;
+ }
+ 
+ public float getY()
+ {
+   return y;
+ }
 }
